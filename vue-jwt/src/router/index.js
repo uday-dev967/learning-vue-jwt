@@ -7,7 +7,10 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: HomeView
+      component: HomeView,
+      meta: {
+        requiresAuth: true,
+      }
     },
     {
       path: '/about',
@@ -15,7 +18,10 @@ const router = createRouter({
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
-      component: () => import('../views/AboutView.vue')
+      component: () => import('../views/AboutView.vue'),
+      meta: {
+        requiresAuth: true,
+      }
     },
     {
       path: '/login',
@@ -31,9 +37,32 @@ const router = createRouter({
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
-      component: () => import('../views/Todos.vue')
+      component: () => import('../views/Todos.vue'),
+      meta: {
+        requiresAuth: true,
+      }
     }
   ]
+})
+
+router.beforeEach((to, from, next) => {
+  // Global navigation guard logic here
+  // console.log(`Navigating from ${from.path} to ${to.path}`)
+  if (to.meta.requiresAuth) {
+    // Check if token is available
+    const token = localStorage.getItem('Authorization')
+    if (!token) {
+      // If token not available, redirect to login
+      next('/login')
+    } else {
+      // If token available, proceed with navigation
+      next()
+    }
+  } else {
+    // If route doesn't require auth, proceed with navigation
+    next()
+  }
+  next()
 })
 
 export default router
